@@ -15,8 +15,6 @@ body{
   font-family:Poppins, sans-serif;
   text-align:center;
   color:white;
-  width:100vw;
-  height:100vh;
 }
 
 /* TITLE */
@@ -25,7 +23,6 @@ h1{
   font-size:clamp(32px,8vw,52px);
   margin:10px 0;
 }
-
 .counter{
   font-size:clamp(14px,4vw,18px);
 }
@@ -53,10 +50,19 @@ h1{
 /* PLAYER */
 .player{
   position:fixed;
-  bottom:12vh;
+  bottom:22vh;
   width:clamp(90px,22vw,120px);
+  z-index:5;
 }
 .player img{width:100%}
+
+/* CAR */
+.car{
+  position:fixed;
+  bottom:10vh;
+  font-size:clamp(80px,22vw,120px);
+  z-index:4;
+}
 
 /* MONEY */
 .money{
@@ -131,10 +137,11 @@ h1{
   }
 }
 
-/* EXTRA SMALL PHONES */
+/* SMALL PHONES */
 @media (max-width:360px){
-  .player{bottom:10vh}
-  .tap-text{top:63%}
+  .player{bottom:24vh}
+  .car{bottom:12vh}
+  .tap-text{top:64%}
 }
 </style>
 </head>
@@ -175,6 +182,7 @@ const fireSound=document.getElementById("fireSound");
 let x=0,dir=1,score=0,caught=0;
 let playing=true;
 let giftBox=null;
+let car=null;
 
 startBtn.onclick=()=>{
   start.style.display="none";
@@ -185,9 +193,15 @@ startBtn.onclick=()=>{
 
 function move(){
   x+=dir*2.5;
-  if(x>innerWidth-140)dir=-1;
+  if(x>innerWidth-160)dir=-1;
   if(x<0)dir=1;
-  player.style.left=x+"px";
+
+  if(car){
+    car.style.left=x+"px";
+    player.style.left=(x+20)+"px";
+  }else{
+    player.style.left=x+"px";
+  }
   requestAnimationFrame(move);
 }
 
@@ -220,8 +234,7 @@ function spawnMoney(){
       if(caught===3)rich();
     }
     if(my>innerHeight){
-      m.remove();
-      clearInterval(fall);
+      m.remove();clearInterval(fall);
     }
   },20);
 }
@@ -229,6 +242,11 @@ function spawnMoney(){
 function rich(){
   playing=false;
   img.src="jiaji_new.png";
+
+  car=document.createElement("div");
+  car.className="car";
+  car.textContent="🏎️";
+  document.body.appendChild(car);
 
   const t=document.createElement("div");
   t.className="pop";
