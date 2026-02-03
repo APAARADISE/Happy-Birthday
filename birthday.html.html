@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Happy Birthday Jiaji</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  background:#00f5a0;
+  overflow:hidden;
+  font-family:Poppins, sans-serif;
+  text-align:center;
+  color:white;
+}
+h1{
+  font-family:'Luckiest Guy', cursive;
+  font-size:52px;
+  margin:10px 0;
+}
+.counter{font-size:18px}
+
+#start{
+  position:fixed;
+  inset:0;
+  background:#00f5a0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+#start button{
+  font-size:26px;
+  padding:14px 40px;
+  border:none;
+  border-radius:12px;
+  background:#ff0080;
+  color:white;
+}
+
+.player{
+  position:fixed;
+  bottom:90px;
+  width:120px;
+}
+.player img{width:100%}
+
+.money{
+  position:fixed;
+  font-size:32px;
+}
+
+.pop{
+  position:fixed;
+  top:35%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Luckiest Guy', cursive;
+  font-size:64px;
+  color:yellow;
+  text-shadow:4px 4px black;
+}
+
+.gift{
+  position:fixed;
+  top:-200px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:120px;
+  cursor:pointer;
+}
+
+.tap-text{
+  position:fixed;
+  top:55%;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:22px;
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{
+  50%{transform:translateX(-50%) scale(1.1);}
+}
+
+.final{
+  position:fixed;
+  top:45%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-family:'Luckiest Guy', cursive;
+  font-size:70px;
+  animation:pop 1.2s forwards;
+}
+@keyframes pop{
+  to{transform:translate(-50%,-50%) scale(1);}
+}
+
+.fire{
+  position:fixed;
+  width:6px;
+  height:6px;
+  background:orange;
+  border-radius:50%;
+  animation:boom 1.2s forwards;
+}
+@keyframes boom{
+  to{
+    transform:translate(var(--x),var(--y));
+    opacity:0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="start">
+  <h1>🎉 Tap to Start 🎉</h1>
+  <button>START</button>
+</div>
+
+<h1 id="title">HAPPY BIRTHDAY JIAJI 🎉</h1>
+<div class="counter">
+Money: $<span id="score">0</span><br>
+Young & Hungry 😎
+</div>
+
+<div class="player" id="player">
+  <img id="img" src="jiaji_old.png">
+</div>
+
+<audio id="coin" src="coin.mp3"></audio>
+<audio id="song" src="birthday.mp3"></audio>
+<audio id="fireSound" src="firecracker.mp3"></audio>
+
+<script>
+const startBtn = document.querySelector("#start button");
+const start = document.getElementById("start");
+const player = document.getElementById("player");
+const img = document.getElementById("img");
+const scoreEl = document.getElementById("score");
+const title = document.getElementById("title");
+
+const coin = document.getElementById("coin");
+const song = document.getElementById("song");
+const fireSound = document.getElementById("fireSound");
+
+let x=0, dir=1, score=0, caught=0;
+let playing=true;
+let giftBox=null;
+
+startBtn.onclick = () => {
+  start.style.display="none";
+  move();
+  for(let i=0;i<10;i++) spawnMoney();
+  setInterval(spawnMoney,450);
+};
+
+function move(){
+  x += dir*2.5;
+  if(x > innerWidth-140) dir = -1;
+  if(x < 0) dir = 1;
+  player.style.left = x + "px";
+  requestAnimationFrame(move);
+}
+
+function spawnMoney(){
+  if(!playing) return;
+  const m=document.createElement("div");
+  m.className="money";
+  m.textContent=Math.random()>0.5?"💰":"💸";
+  let mx=Math.random()*innerWidth;
+  let my=-40;
+  let dx=(Math.random()-0.5)*2;
+  m.style.left=mx+"px";
+  document.body.appendChild(m);
+
+  const fall=setInterval(()=>{
+    my+=2; mx+=dx;
+    m.style.top=my+"px";
+    m.style.left=mx+"px";
+
+    const mr=m.getBoundingClientRect();
+    const pr=player.getBoundingClientRect();
+    if(mr.bottom>pr.top && mr.left<pr.right && mr.right>pr.left){
+      coin.currentTime=0;
+      coin.play();
+      score+=100;
+      caught++;
+      scoreEl.textContent=score;
+      m.remove();
+      clearInterval(fall);
+      if(caught===3) rich();
+    }
+    if(my>innerHeight){
+      m.remove(); clearInterval(fall);
+    }
+  },20);
+}
+
+function rich(){
+  playing=false;
+  img.src="jiaji_new.png";
+
+  const t=document.createElement("div");
+  t.className="pop";
+  t.textContent="JIAJI GOT RICH";
+  document.body.appendChild(t);
+
+  setTimeout(()=>{
+    t.remove();
+    dropBox();
+  },3000);
+}
+
+function dropBox(){
+  title.style.display="none";
+  giftBox=document.createElement("div");
+  giftBox.className="gift";
+  giftBox.textContent="🎁";
+  document.body.appendChild(giftBox);
+
+  let y=-200;
+  const drop=setInterval(()=>{
+    y+=10;
+    giftBox.style.top=y+"px";
+    if(giftBox.getBoundingClientRect().bottom >= player.getBoundingClientRect().top){
+      clearInterval(drop);
+      showTapText();
+    }
+  },20);
+}
+
+function showTapText(){
+  const tap=document.createElement("div");
+  tap.className="tap-text";
+  tap.textContent="Tap the gift for a surprise 🎁";
+  document.body.appendChild(tap);
+
+  giftBox.onclick=()=>{
+    tap.remove();
+    giftBox.remove();
+    showFinal();
+  };
+}
+
+function showFinal(){
+  const f=document.createElement("div");
+  f.className="final";
+  f.innerHTML="🎂 HAPPY BIRTHDAY<br>JIAJI 💰💸";
+  document.body.appendChild(f);
+
+  song.volume=1;
+  song.play();
+
+  setTimeout(startFireworks,2000);
+}
+
+function startFireworks(){
+  let bursts=0;
+  const fireInt=setInterval(()=>{
+    fireSound.volume=0.3;
+    fireSound.currentTime=0;
+    fireSound.play();
+
+    for(let i=0;i<25;i++){
+      const p=document.createElement("div");
+      p.className="fire";
+      p.style.left=Math.random()*100+"vw";
+      p.style.top=Math.random()*60+"vh";
+      p.style.setProperty("--x",(Math.random()*300-150)+"px");
+      p.style.setProperty("--y",(Math.random()*300-150)+"px");
+      document.body.appendChild(p);
+    }
+    bursts++;
+    if(bursts===7){
+      clearInterval(fireInt);
+      setTimeout(()=>window.close(),2000);
+    }
+  },900);
+}
+</script>
+
+</body>
+</html>
