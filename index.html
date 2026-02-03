@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+*{box-sizing:border-box}
+
 body{
   margin:0;
   background:#00f5a0;
@@ -13,14 +15,22 @@ body{
   font-family:Poppins, sans-serif;
   text-align:center;
   color:white;
+  width:100vw;
+  height:100vh;
 }
+
+/* TITLE */
 h1{
   font-family:'Luckiest Guy', cursive;
-  font-size:52px;
+  font-size:clamp(32px,8vw,52px);
   margin:10px 0;
 }
-.counter{font-size:18px}
 
+.counter{
+  font-size:clamp(14px,4vw,18px);
+}
+
+/* START SCREEN */
 #start{
   position:fixed;
   inset:0;
@@ -32,7 +42,7 @@ h1{
   z-index:999;
 }
 #start button{
-  font-size:26px;
+  font-size:clamp(18px,5vw,26px);
   padding:14px 40px;
   border:none;
   border-radius:12px;
@@ -40,63 +50,72 @@ h1{
   color:white;
 }
 
+/* PLAYER */
 .player{
   position:fixed;
-  bottom:90px;
-  width:120px;
+  bottom:12vh;
+  width:clamp(90px,22vw,120px);
 }
 .player img{width:100%}
 
+/* MONEY */
 .money{
   position:fixed;
-  font-size:32px;
+  font-size:clamp(22px,6vw,32px);
 }
 
+/* POP TEXT */
 .pop{
   position:fixed;
   top:35%;
   left:50%;
   transform:translate(-50%,-50%);
   font-family:'Luckiest Guy', cursive;
-  font-size:64px;
+  font-size:clamp(36px,9vw,64px);
   color:yellow;
   text-shadow:4px 4px black;
+  width:90%;
 }
 
+/* GIFT */
 .gift{
   position:fixed;
   top:-200px;
   left:50%;
   transform:translateX(-50%);
-  font-size:120px;
+  font-size:clamp(80px,20vw,120px);
   cursor:pointer;
 }
 
+/* TAP TEXT */
 .tap-text{
   position:fixed;
-  top:55%;
+  top:60%;
   left:50%;
   transform:translateX(-50%);
-  font-size:22px;
+  font-size:clamp(14px,4vw,22px);
   animation:pulse 1.2s infinite;
 }
 @keyframes pulse{
   50%{transform:translateX(-50%) scale(1.1);}
 }
 
+/* FINAL TEXT */
 .final{
   position:fixed;
   top:45%;
   left:50%;
   transform:translate(-50%,-50%) scale(0);
   font-family:'Luckiest Guy', cursive;
-  font-size:70px;
+  font-size:clamp(38px,9vw,70px);
   animation:pop 1.2s forwards;
+  width:95%;
 }
 @keyframes pop{
   to{transform:translate(-50%,-50%) scale(1);}
 }
 
+/* FIREWORK */
 .fire{
   position:fixed;
   width:6px;
@@ -110,6 +129,12 @@ h1{
     transform:translate(var(--x),var(--y));
     opacity:0;
   }
+}
+
+/* EXTRA SMALL PHONES */
+@media (max-width:360px){
+  .player{bottom:10vh}
+  .tap-text{top:63%}
 }
 </style>
 </head>
@@ -136,38 +161,38 @@ Young & Hungry 😎
 <audio id="fireSound" src="firecracker.mp3"></audio>
 
 <script>
-const startBtn = document.querySelector("#start button");
-const start = document.getElementById("start");
-const player = document.getElementById("player");
-const img = document.getElementById("img");
-const scoreEl = document.getElementById("score");
-const title = document.getElementById("title");
+const startBtn=document.querySelector("#start button");
+const start=document.getElementById("start");
+const player=document.getElementById("player");
+const img=document.getElementById("img");
+const scoreEl=document.getElementById("score");
+const title=document.getElementById("title");
 
-const coin = document.getElementById("coin");
-const song = document.getElementById("song");
-const fireSound = document.getElementById("fireSound");
+const coin=document.getElementById("coin");
+const song=document.getElementById("song");
+const fireSound=document.getElementById("fireSound");
 
-let x=0, dir=1, score=0, caught=0;
+let x=0,dir=1,score=0,caught=0;
 let playing=true;
 let giftBox=null;
 
-startBtn.onclick = () => {
+startBtn.onclick=()=>{
   start.style.display="none";
   move();
-  for(let i=0;i<10;i++) spawnMoney();
+  for(let i=0;i<10;i++)spawnMoney();
   setInterval(spawnMoney,450);
 };
 
 function move(){
-  x += dir*2.5;
-  if(x > innerWidth-140) dir = -1;
-  if(x < 0) dir = 1;
-  player.style.left = x + "px";
+  x+=dir*2.5;
+  if(x>innerWidth-140)dir=-1;
+  if(x<0)dir=1;
+  player.style.left=x+"px";
   requestAnimationFrame(move);
 }
 
 function spawnMoney(){
-  if(!playing) return;
+  if(!playing)return;
   const m=document.createElement("div");
   m.className="money";
   m.textContent=Math.random()>0.5?"💰":"💸";
@@ -178,7 +203,7 @@ function spawnMoney(){
   document.body.appendChild(m);
 
   const fall=setInterval(()=>{
-    my+=2; mx+=dx;
+    my+=2;mx+=dx;
     m.style.top=my+"px";
     m.style.left=mx+"px";
 
@@ -192,10 +217,11 @@ function spawnMoney(){
       scoreEl.textContent=score;
       m.remove();
       clearInterval(fall);
-      if(caught===3) rich();
+      if(caught===3)rich();
     }
     if(my>innerHeight){
-      m.remove(); clearInterval(fall);
+      m.remove();
+      clearInterval(fall);
     }
   },20);
 }
@@ -226,7 +252,7 @@ function dropBox(){
   const drop=setInterval(()=>{
     y+=10;
     giftBox.style.top=y+"px";
-    if(giftBox.getBoundingClientRect().bottom >= player.getBoundingClientRect().top){
+    if(giftBox.getBoundingClientRect().bottom>=player.getBoundingClientRect().top){
       clearInterval(drop);
       showTapText();
     }
@@ -254,7 +280,6 @@ function showFinal(){
 
   song.volume=1;
   song.play();
-
   setTimeout(startFireworks,2000);
 }
 
